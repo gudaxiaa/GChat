@@ -163,4 +163,5 @@ void CMFChatClientDlg::OnBnClickedSendBtn()
 	MessageBox(_T("world"));
 	MessageBox(_T("!"));
 	MessageBox(_T("!"));
+	1
 }
