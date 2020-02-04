@@ -159,9 +159,5 @@ HCURSOR CMFChatClientDlg::OnQueryDragIcon()
 void CMFChatClientDlg::OnBnClickedSendBtn()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	MessageBox(_T("hello"));
-	MessageBox(_T("world"));
-	MessageBox(_T("!"));
-	MessageBox(_T("!"));
-	1
+
 }
