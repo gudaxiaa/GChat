@@ -16,15 +16,17 @@ void CMySocket::OnConnect(int nErroCode)
 	CString str;
 	dlg->m_time = CTime::GetCurrentTime();
 	str = dlg->m_time.Format("%X");
-	str += _T("连接成功");
+	str += _T("服务器端成功");
 	dlg->m_list.AddString(str);
+
+	dlg->m_list.UpdateData(FALSE);
 
 	CAsyncSocket::OnConnect(nErroCode);
 };
 
 void CMySocket::OnReceive(int nErroCode)
 {
-
+	
 };
 
 CMySocket::~CMySocket()

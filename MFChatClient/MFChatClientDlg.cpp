@@ -189,7 +189,12 @@ void CMFChatClientDlg::OnBnClickedConnectBtn()
 	int iPort = _ttoi(strPort);
 	//创建套接字
 	sockCli = new CMySocket;
-	sockCli->Create();
+
+	if (!sockCli->Create())
+	{
+		TRACE("sockCli Create %d",GetLastError);
+		return;
+	}
 
 	sockCli->Connect(strIP,iPort);
 	
