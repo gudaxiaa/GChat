@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+#include "CMySocket.h"
 
 // CMFChatClientDlg 对话框
 class CMFChatClientDlg : public CDialogEx
@@ -33,4 +33,9 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedSendBtn();
+	afx_msg void OnBnClickedConnectBtn();
+	CMySocket* sockCli;
+	CListBox m_list;
+	CTime m_time;
+	CEdit m_input;
 };

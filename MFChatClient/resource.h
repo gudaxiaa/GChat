@@ -8,6 +8,7 @@
 #define IDD_MFCHATCLIENT_DIALOG         102
 #define IDR_MAINFRAME                   128
 #define IDC_HISTORY_LIST                1000
+#define IDC_LIST                        1000
 #define IDC_CLEAN_BTN                   1001
 #define IDC_CONNECT_BTN                 1002
 #define IDC_DISCONNECT_BTN              1003
