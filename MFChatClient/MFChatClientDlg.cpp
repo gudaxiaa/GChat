@@ -165,6 +165,23 @@ HCURSOR CMFChatClientDlg::OnQueryDragIcon()
 void CMFChatClientDlg::OnBnClickedSendBtn()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	//1.获取发送的内容
+	CString strTmpMsg;
+	GetDlgItem(IDC_SENDMS_EDIT)->GetWindowText(strTmpMsg);
+	USES_CONVERSION;
+	char* szstrTmpMsg = T2A(strTmpMsg);
+	//发送
+	sockCli->Send(szstrTmpMsg,200,0);
+
+	//2.显示
+	CString str;
+	m_time = CTime::GetCurrentTime();
+	str = m_time.Format("%X");
+	str += _T(" 我") + strTmpMsg;
+	m_list.AddString(str);
+	m_list.UpdateData(FALSE);
+
+	GetDlgItem(IDC_SENDMS_EDIT)->SetWindowText(_T(""));
 	
 }
 
@@ -192,10 +209,14 @@ void CMFChatClientDlg::OnBnClickedConnectBtn()
 
 	if (!sockCli->Create())
 	{
-		TRACE("sockCli Create %d",GetLastError);
+		TRACE("sockCli Create erroCode %d",GetLastError());
 		return;
 	}
 
-	sockCli->Connect(strIP,iPort);
+	if (sockCli->Connect(strIP, iPort) != SOCKET_ERROR)
+	{
+		TRACE("socckCli Connect erroCode %d",GetLastError());
+		return;
+	}
 	
 }
