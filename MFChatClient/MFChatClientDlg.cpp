@@ -428,6 +428,20 @@ HBRUSH CMFChatClientDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 BOOL CMFChatClientDlg::PreTranslateMessage(MSG* pMsg)
 {
 	// TODO: 在此添加专用代码和/或调用基类
+	//规避回车键
+	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN)
+	{
+		TRACE("##规避回车键");
+		return TRUE;
+	}
+
+	//规避空格键
+	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_SPACE)
+	{
+		TRACE("##规避空格键");
+		return TRUE;
+	}
+
 	//实现Ctrl+ X键 的退出功能
 	if (pMsg->message == WM_KEYDOWN)
 	{
