@@ -194,6 +194,29 @@ void CMFChatClientDlg::OnPaint()
 	}
 	else
 	{
+		//1.获取目标区域
+		CPaintDC dc(this); // 用于绘制的设备上下文
+		CRect Rect;
+		GetClientRect(&Rect);
+
+		//2.加载图片资源并存到兼容设备上下文中
+		CDC dcBmp;
+		dcBmp.CreateCompatibleDC(&dcBmp);
+
+		CBitmap bmpBackground;
+		bmpBackground.LoadBitmap(IDB_HILL_BITMAP);
+
+		BITMAP bBitmap;
+		bmpBackground.GetBitmap(&bBitmap);
+
+		//3.显示图片
+		CBitmap* pOldBitmp = dcBmp.SelectObject(&bmpBackground);
+		
+		dc.StretchBlt(0, 0, Rect.Width(), Rect.Height(), &dcBmp, 
+			0, 0, bBitmap.bmWidth, bBitmap.bmHeight, SRCCOPY);
+
+
+
 		CDialogEx::OnPaint();
 	}
 }
