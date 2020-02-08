@@ -20,6 +20,10 @@
 #define IDC_SENDMS_EDIT                 1008
 #define IDC_COLOR_COMBO                 1009
 #define IDC_SEND_BTN                    1010
+#define IDC_NAME_BTN                    1011
+#define IDC_SAVENAME_EDIT               1012
+#define IDC_CHECK1                      1013
+#define IDC_AUTOSEND_CHECK              1013
 
 // Next default values for new objects
 // 
@@ -27,7 +31,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1011
+#define _APS_NEXT_CONTROL_VALUE         1014
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

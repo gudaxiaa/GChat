@@ -1,4 +1,5 @@
 #pragma once
+#define  BUFF_MAX_SIZE  1024
 #include <afxsock.h>
 class CMySocket :
 	public CAsyncSocket

@@ -62,6 +62,7 @@ void CMFChatClientDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST, m_list);
 	DDX_Control(pDX, IDC_SENDMS_EDIT, m_input);
+	DDX_Control(pDX, IDC_COLOR_COMBO, CWordColor);
 }
 
 BEGIN_MESSAGE_MAP(CMFChatClientDlg, CDialogEx)
@@ -70,6 +71,11 @@ BEGIN_MESSAGE_MAP(CMFChatClientDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_SEND_BTN, &CMFChatClientDlg::OnBnClickedSendBtn)
 	ON_BN_CLICKED(IDC_CONNECT_BTN, &CMFChatClientDlg::OnBnClickedConnectBtn)
+	ON_BN_CLICKED(IDC_NAME_BTN, &CMFChatClientDlg::OnBnClickedNameBtn)
+	ON_BN_CLICKED(IDC_CLEAN_BTN, &CMFChatClientDlg::OnBnClickedCleanBtn)
+	ON_BN_CLICKED(IDC_DISCONNECT_BTN, &CMFChatClientDlg::OnBnClickedDisconnectBtn)
+	ON_BN_CLICKED(IDC_AUTOSEND_CHECK, &CMFChatClientDlg::OnBnClickedAutosendCheck)
+	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
@@ -108,6 +114,45 @@ BOOL CMFChatClientDlg::OnInitDialog()
 	GetDlgItem(IDC_PORT_EDIT)->SetWindowText(_T("6000"));
 	GetDlgItem(IDC_IPADDRESS)->SetWindowText(_T("127.0.0.1"));
 
+	//显示昵称
+	CString strName;
+	//获取路径
+	WCHAR strPath[MAX_PATH] = { 0 };
+	WCHAR szstrName[MAX_PATH] = { 0 };
+	GetCurrentDirectoryW(MAX_PATH, strPath);
+	TRACE("####strPath:%ls", strPath);
+	//配置昵称文件
+	CString strFilePath;
+	strFilePath.Format(L"%ls//Text.ini", strPath);
+
+	//读取配置文件
+	DWORD dwNum = GetPrivateProfileStringW(_T("CLIENT"), _T("NAME"),NULL, szstrName,MAX_PATH, strFilePath);
+	if (dwNum > 0)
+	{
+		GetDlgItem(IDC_SAVENAME_EDIT)->SetWindowTextW(szstrName);
+		UpdateData(FALSE);
+	}
+	else
+	{
+		WritePrivateProfileStringW(_T("CLIENT"), _T("NAME"), L"客户端:", strFilePath);
+		GetDlgItem(IDC_SAVENAME_EDIT)->SetWindowText(L"客户端:");
+		UpdateData(FALSE);
+	}
+
+	GetDlgItem(IDC_CONNECT_BTN)->EnableWindow(TRUE);
+	GetDlgItem(IDC_DISCONNECT_BTN)->EnableWindow(FALSE);
+	GetDlgItem(IDC_SEND_BTN)->EnableWindow(FALSE);
+	GetDlgItem(IDC_AUTOSEND_CHECK)->EnableWindow(FALSE);
+
+	CWordColor.AddString(_T("黑色"));
+	CWordColor.AddString(_T("红色"));
+	CWordColor.AddString(_T("绿色"));
+	CWordColor.AddString(_T("蓝色"));
+
+	CWordColor.SetCurSel(0);
+	GetDlgItem(IDC_COLOR_COMBO)->SetWindowText(_T("黑色"));
+
+	
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -160,6 +205,15 @@ HCURSOR CMFChatClientDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+CString  CMFChatClientDlg::CatStrShow(CString strInfo,CString strMsg)
+{
+	CString strShow;
+	CTime ctim;
+	ctim = CTime::GetCurrentTime();
+	strShow = ctim.Format("%X");
+	strShow += strInfo + strMsg;
+	return strShow;
+}
 
 
 void CMFChatClientDlg::OnBnClickedSendBtn()
@@ -167,18 +221,22 @@ void CMFChatClientDlg::OnBnClickedSendBtn()
 	// TODO: 在此添加控件通知处理程序代码
 	//1.获取发送的内容
 	CString strTmpMsg;
+	CString strName;
 	GetDlgItem(IDC_SENDMS_EDIT)->GetWindowText(strTmpMsg);
+	GetDlgItem(IDC_SAVENAME_EDIT)->GetWindowTextW(strName);
+	strTmpMsg = strName + _T(":") + strTmpMsg;
 	USES_CONVERSION;
 	char* szstrTmpMsg = T2A(strTmpMsg);
 	//发送
-	sockCli->Send(szstrTmpMsg,200,0);
+	sockCli->Send(szstrTmpMsg, BUFF_MAX_SIZE,0);
 
 	//2.显示
-	CString str;
-	m_time = CTime::GetCurrentTime();
-	str = m_time.Format("%X");
-	str += _T(" 我") + strTmpMsg;
-	m_list.AddString(str);
+	CString strShow;
+	strName = _T("");
+	strShow = CatStrShow(strName, strTmpMsg);
+
+
+	m_list.AddString(strShow);
 	m_list.UpdateData(FALSE);
 
 	GetDlgItem(IDC_SENDMS_EDIT)->SetWindowText(_T(""));
@@ -219,4 +277,126 @@ void CMFChatClientDlg::OnBnClickedConnectBtn()
 		return;
 	}
 	
+}
+
+
+void CMFChatClientDlg::OnBnClickedNameBtn()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CString strName;
+	GetDlgItem(IDC_SAVENAME_EDIT)->GetWindowText(strName);
+
+	if (strName.GetLength()<=0)
+	{
+		//写入配置文件
+		MessageBox(_T("昵称不能为空"));
+		return;
+	}
+	if (IDOK == AfxMessageBox(_T("确定要修改昵称吗?"),MB_OKCANCEL))
+	{
+
+		//获取路径
+		WCHAR strPath[MAX_PATH] = { 0 };
+		GetCurrentDirectoryW(MAX_PATH, strPath);
+		TRACE("####strPath:%ls", strPath);
+		//配置昵称文件
+		CString strFilePath;
+		strFilePath.Format(L"%ls//Text.ini", strPath);
+		//写入配置文件
+		WritePrivateProfileStringW(_T("CLIENT"),_T("NAME"),strName, strFilePath);
+	}
+
+}
+	
+
+
+
+
+void CMFChatClientDlg::OnBnClickedCleanBtn()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_list.ResetContent();
+}
+
+
+void CMFChatClientDlg::OnBnClickedDisconnectBtn()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	//控制按键状态
+	GetDlgItem(IDC_CONNECT_BTN)->EnableWindow(TRUE);
+	GetDlgItem(IDC_DISCONNECT_BTN)->EnableWindow(FALSE);
+	GetDlgItem(IDC_SEND_BTN)->EnableWindow(FALSE);
+	GetDlgItem(IDC_AUTOSEND_CHECK)->EnableWindow(FALSE);
+
+	CString strTmpMsg = _T("断开连接");
+	CString strName;
+	GetDlgItem(IDC_SAVENAME_EDIT)->GetWindowTextW(strName);
+	strTmpMsg = strName + strTmpMsg;
+	USES_CONVERSION;
+	char* szstrTmpMsg = T2A(strTmpMsg);
+	//发送
+	sockCli->Send(szstrTmpMsg, BUFF_MAX_SIZE, 0);
+
+	//2.显示
+	CString strShow;
+	strName = _T("");
+	strShow = CatStrShow(strName, strTmpMsg);
+	m_list.AddString(strShow);
+	m_list.UpdateData(FALSE);
+
+
+
+	//释放内存
+	sockCli->Close();
+	if (sockCli != NULL)
+	{
+		delete sockCli;
+		sockCli = NULL;
+	}
+
+}
+
+
+void CMFChatClientDlg::OnBnClickedAutosendCheck()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (((CButton*)GetDlgItem(IDC_AUTOSEND_CHECK))->GetCheck())
+	{
+		((CButton*)GetDlgItem(IDC_AUTOSEND_CHECK))->SetCheck(FALSE);
+	}
+	else
+	{
+		((CButton*)GetDlgItem(IDC_AUTOSEND_CHECK))->SetCheck(TRUE);
+	}
+
+}
+
+
+HBRUSH CMFChatClientDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+	CString str;
+	GetDlgItem(IDC_COLOR_COMBO)->GetWindowText(str);//能否可行?
+
+	if(IDC_LIST == pWnd->GetDlgCtrlID() || IDC_SENDMS_EDIT == pWnd->GetDlgCtrlID())
+	{
+		if (str == _T("黑色"))
+		{
+			pDC->SetTextColor(RGB(0,0,0));
+		}
+		else if(str == _T("红色"))
+		{
+			pDC->SetTextColor(RGB(255, 0, 0));
+		}
+		else if (str == _T("绿色"))
+		{
+			pDC->SetTextColor(RGB(0, 255, 0));
+		}
+		else if (str == _T("蓝色"))
+		{
+			pDC->SetTextColor(RGB(0, 0, 255));
+		}
+	}
+	
+	return hbr;
 }

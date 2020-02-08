@@ -34,8 +34,16 @@ protected:
 public:
 	afx_msg void OnBnClickedSendBtn();
 	afx_msg void OnBnClickedConnectBtn();
+	CString  CatStrShow(CString strInfo, CString strMsg);
 	CMySocket* sockCli;
 	CListBox m_list;
-	CTime m_time;
+	//CTime m_time;
 	CEdit m_input;
+	afx_msg void OnBnClickedNameBtn();
+	
+	afx_msg void OnBnClickedCleanBtn();
+	afx_msg void OnBnClickedDisconnectBtn();
+	afx_msg void OnBnClickedAutosendCheck();
+	CComboBox CWordColor;
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 };
