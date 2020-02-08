@@ -423,3 +423,22 @@ HBRUSH CMFChatClientDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	
 	return hbr;
 }
+
+
+BOOL CMFChatClientDlg::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: 在此添加专用代码和/或调用基类
+	//实现Ctrl+ X键 的退出功能
+	if (pMsg->message == WM_KEYDOWN)
+	{
+		if (GetKeyState(VK_CONTROL))
+		{
+			if (pMsg->wParam == 'X')
+			{
+				CDialogEx::OnOK();
+			}
+		}
+	}
+
+	return CDialogEx::PreTranslateMessage(pMsg);
+}
